@@ -24,6 +24,7 @@ jobs:
         cd app
         mkdir db
         dir && xcopy /Y "./config/sql.db" "./db"
+        cd ..
         npm i --save-dev
         # cd webui
         # npm i --legacy-peer-deps --save-dev
