@@ -1,9 +1,10 @@
 node_modules
-app/static
+#app/static
 webui/public/assets/styles
-logs
-app/data
+#logs
+#app/data
 app/db/sql.db
-config.yaml
-torrents
+#config.yaml
+#torrents
 develop
+.idea
