@@ -166,27 +166,30 @@ class SettingMod {
   };
 
   async backupVertex (options) {
-    const backupsFile = `/tmp/Vertex-backups-${moment().format('YYYY-MM-DD_HH:mm:ss')}.tar.gz`;
-    const backupsFileds = ['vertex/db', 'vertex/data', 'vertex/config'];
+    const child_process = require('child_process');
+    const backupsFile = `Vertex-backups-${moment().format('YYYY-MM-DD_HH:mm:ss')}.tar.gz`;
+    const backupsFileds = ['./app/db', './app/data', './app/config'];
     if (options.bt + '' === 'true') {
-      backupsFileds.push('vertex/torrents');
+      backupsFileds.push('./torrents');
     }
-    await util.tar.c({
-      gzip: true,
-      file: backupsFile,
-      cwd: global.dataPath
-    }, backupsFileds);
-    return backupsFile;
+    // await util.tar.c({
+    //   gzip: true,
+    //   file: backupsFile,
+    //   cwd: "."
+    // }, backupsFileds);
+    // return backupsFile;
+    return "Windows暂不支持";
   }
 
   async restoreVertex (options) {
     const backupsFile = options.file.path || options.file.originalFilename;
-    await util.tar.x({
-      gzip: true,
-      file: backupsFile,
-      C: '/tmp'
-    });
-    return '数据导入成功, 重启容器后生效。';
+    // await util.tar.x({
+    //   gzip: true,
+    //   file: backupsFile,
+    //   C: '/tmp'
+    // });
+    // return '数据导入成功, 重启容器后生效。';
+    return 'Windows暂不支持。';
   }
 
   async networkTest (options) {
@@ -253,23 +256,23 @@ class SettingMod {
   }
 
   getHosts () {
-    const hosts = fs.readFileSync('/etc/hosts', { encoding: 'utf-8' });
+    const hosts = fs.readFileSync('C:\\WINDOWS\\System32\\drivers\\etc\\hosts', { encoding: 'utf-8' });
     return hosts;
   };
 
   save (options) {
-    fs.writeFileSync('/etc/hosts', options.hosts);
-    fs.copyFileSync('/etc/hosts', path.join(__dirname, '../data/hosts'));
+    fs.writeFileSync('C:\\WINDOWS\\System32\\drivers\\etc\\hosts', options.hosts);
+    fs.copyFileSync('C:\\WINDOWS\\System32\\drivers\\etc\\hosts', path.join(__dirname, '../data/hosts'));
     return '保存成功';
   };
 
   import () {
-    fs.copyFileSync(path.join(__dirname, '../data/hosts'), '/etc/hosts');
+    fs.copyFileSync(path.join(__dirname, '../data/hosts'), 'C:\\WINDOWS\\System32\\drivers\\etc\\hosts');
     return '导入成功';
   };
 
   export () {
-    fs.copyFileSync('/etc/hosts', path.join(__dirname, '../data/hosts'));
+    fs.copyFileSync('C:\\WINDOWS\\System32\\drivers\\etc\\hosts', path.join(__dirname, '../data/hosts'));
     return '导出成功';
   };
 
