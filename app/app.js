@@ -42,7 +42,7 @@ const init = function () {
     try {
       await util.runRecord('delete from torrent_flow where time < ?', [moment().unix() - 1]);
       await util.runRecord('delete from tracker_flow where time < ?', [moment().unix() - 7 * 24 * 3600]);
-      execSync('rm -f /tmp/Vertex-backups-*');
+      execSync('cd tmp && for /R %F in (Vertex-backups-*) do del "%F"');
     } catch (e) {
       logger.error(e);
     }
@@ -158,12 +158,12 @@ const init = function () {
     logger.error('初始化任务报错\n', e);
   }
   try {
-    const server = http.createServer(app).listen(process.env.PORT);
+    const server = http.createServer(app).listen(4000);
     ws(app, server);
-    logger.info('HTTP 服务器启动, 监听端口: ', process.env.PORT);
+    logger.info('HTTP 服务器启动, 监听端口: ', 4000);
   } catch (e) {
     logger.error(e);
-    logger.error('HTTP 服务器启动失败, 监听端口: ', process.env.PORT);
+    logger.error('HTTP 服务器启动失败, 监听端口: ', 4000);
   }
   if (process.env.HTTPS_ENABLE === 'true') {
     try {
