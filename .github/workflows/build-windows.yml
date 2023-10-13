@@ -2,8 +2,6 @@ name: Build Windows
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 0/4 * * *'
 
 jobs:
   build_windows:
@@ -24,7 +22,8 @@ jobs:
     - name: Install Dependencies
       run: |
         cd app
-        mkdir db && copy /Y ".\config\sql.db" ".\db"
+        mkdir db
+        dir && copy /Y "./config/sql.db" "./db"
         npm i --save-dev
         # cd webui
         # npm i --legacy-peer-deps --save-dev
@@ -40,7 +39,7 @@ jobs:
     #     node dark
     #     node light
     #     node cyber
-        
+
     # - name: Build Static Files
     #   working-directory: ./webui
     #   run: |
