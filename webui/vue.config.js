@@ -9,14 +9,14 @@ module.exports = {
     open: false,
     proxy: {
       '/api/': {
-        target: 'http://172.20.99.3:4000',
+        target: 'http://127.0.0.1:4000',
         changeOrigin: true,
         ws: true,
         pathRewrite: { '^/api': '/api' },
         secure: false
       },
       '/proxy/': {
-        target: 'http://172.20.99.3:4000',
+        target: 'http://127.0.0.1:4000',
         changeOrigin: true,
         ws: true,
         pathRewrite: { '^/proxy': '/proxy' },
