@@ -6,8 +6,14 @@ const logger = require('../libs/logger');
 class LogMod {
   get (options) {
     const logFile = path.join(__dirname, `../../logs/app-${options.type}.log`);
-    const log = execSync(`tail -n 2000 ${logFile}`).toString();
-    return log;
+    // const log = execSync(`tail -n 2000 ${logFile}`).toString();
+    // return log;
+    return fs.readFileSync(logFile, { encoding: 'utf8' }, (err, data) => {
+      if (err) throw err;
+      const lines = data.toString().split('\n');
+      const last100Lines = lines.length>100?lines.slice(-100):lines;
+      return last100Lines.join('\n')
+    });
   };
 
   clear () {
