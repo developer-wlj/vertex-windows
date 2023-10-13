@@ -1,0 +1,47 @@
+name: Build Windows
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0/4 * * *'
+
+jobs:
+  build_windows:
+    runs-on: windows-latest
+    steps:
+    # - uses: actions/checkout@v3
+    # - run: git fetch --prune --unshallow
+
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Use Node.js 14.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: 14.x
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: |
+        cd app
+        mkdir db && copy /Y ".\config\sql.db" ".\db"
+        npm i --save-dev
+        # cd webui
+        # npm i --legacy-peer-deps --save-dev
+    - name: Eslint
+      run: |
+        npm run eslint
+        # cd webui
+        # npm run eslint
+    # - name: Prepare Theme Files
+    #   working-directory: ./webui
+    #   run: |
+    #     mkdir ./public/assets/styles
+    #     node dark
+    #     node light
+    #     node cyber
+        
+    # - name: Build Static Files
+    #   working-directory: ./webui
+    #   run: |
+    #     npm run build
