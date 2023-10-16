@@ -6,23 +6,28 @@ on:
 jobs:
   build_windows:
     runs-on: windows-latest
+    outputs:
+      output1: ${{ steps.get_version.outputs.KEY }}
     steps:
     - name: Checkout
       uses: actions/checkout@v4
       with:
         path: 'Vertex'
-        
+
     - name: Use Node.js 14.x
       uses: actions/setup-node@v3
       with:
         node-version: 14.21.3
 
     - name: Install Dependencies
+      id: get_version
       run: |
         ls
         cd Vertex
+        $version = Get-Content "./version.py"
+        echo "KEY=$version" >> $env:GITHUB_OUTPUT
         ls
-        Remove-Item -Path .\webui -Recurse -Force 
+        Remove-Item -Path .\webui -Recurse -Force
         cd app
         Copy-Item -Path "./config/sql.db" -Destination "./db"
         ls
@@ -42,7 +47,7 @@ jobs:
         ls
     - name: Install Inno Setup Compiler
       uses: pwall2222/inno-setup-download@v0.0.4
-      
+
     - name: COPY NODE
       run: |
         mkdir Node14
@@ -64,19 +69,42 @@ jobs:
         echo ====
         ls
         cd Inno-Setup-Vertex
-        ls
         Copy-Item -Path ".\ChineseSimplified.isl" -Destination "C:\Users\runneradmin\AppData\Local\Temp\inno\Languages"
-        iscc "/DMyAppVersion=0.0.1" build.iss
+        echo "${{ steps.get_version.outputs.KEY }}"
+        iscc "/DMyAppVersion=${{ steps.get_version.outputs.KEY }}" build.iss
 
-    # - name: Prepare Theme Files
-    #   working-directory: ./webui
-    #   run: |
-    #     mkdir ./public/assets/styles
-    #     node dark
-    #     node light
-    #     node cyber
+    - name: Upload windows file
+      uses: actions/upload-artifact@v3
+      with:
+        name: windows
+        path: .\Inno-Setup-Vertex\exe\build\*.exe
 
-    # - name: Build Static Files
-    #   working-directory: ./webui
-    #   run: |
-    #     npm run build
+  Create-release:
+    permissions: write-all
+    runs-on: ubuntu-latest
+    needs: [ build_windows ]
+    steps:
+      - name: Download exe
+        uses: actions/download-artifact@v3
+      
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OUTPUT1: ${{needs.build_windows.outputs.output1}}
+        with:
+          tag_name: ${{needs.build_windows.outputs.output1}}
+          release_name: ${{needs.build_windows.outputs.output1}}
+          body: ${{ github.event.commits[0].message }}
+          draft: false
+          prerelease: false
+
+      - name: Upload release asset
+        uses: dwenegar/upload-release-assets@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          release_id: ${{ steps.create_release.outputs.id }}
+          assets_path: |
+            ./windows/
