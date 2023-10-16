@@ -19,15 +19,14 @@ jobs:
 
     - name: Install Dependencies
       run: |
-        pwd
-        dir
+        ls
         cd Vertex
-        dir
+        ls
         Remove-Item -Path .\webui -Recurse -Force 
         cd app
         xcopy /Y "./config/sql.db" "./db"
         cd ..
-        dir
+        ls
         npm i --save-dev
         # cd webui
         # npm i --legacy-peer-deps --save-dev
@@ -35,20 +34,19 @@ jobs:
     - name: build
       run: |
         mkdir webui
-        dir
+        ls
         mv ./Vertex/app/static/* ./webui/
         cd webui
-        dir
+        ls
     - name: Install Inno Setup Compiler
       uses: pwall2222/inno-setup-download@v0.0.4
       
     - name: COPY NODE
       run: |
-        pwd
         mkdir Node14
         cd Node14
         Copy-Item -Path "C:\hostedtoolcache\windows\node\14.21.3\x64\*" -Destination .
-        dir
+        ls
 
     - name: 拉取exe代码
       uses: actions/checkout@v3
