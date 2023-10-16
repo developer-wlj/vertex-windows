@@ -17,6 +17,7 @@ jobs:
       with:
         node-version: 14.21.3
         cache: 'npm'
+        package-lock: Vertex/package-lock.json
 
     - name: Install Dependencies
       run: |
