@@ -12,15 +12,24 @@ jobs:
 
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        path: 'Vertex'
+      run: |
+        pwd
+        dir
+        cd Vertex
+        dir
 
     - name: Use Node.js 14.x
       uses: actions/setup-node@v3
       with:
-        node-version: 14.x
+        node-version: 14.21.3
         cache: 'npm'
 
     - name: Install Dependencies
       run: |
+        cd Vertex
+        rd /s /q .\webui
         cd app
         mkdir db
         xcopy /Y "./config/sql.db" "./db"
@@ -29,11 +38,31 @@ jobs:
         npm i --save-dev
         # cd webui
         # npm i --legacy-peer-deps --save-dev
-    - name: Eslint
+
+    - name: build
       run: |
-        npm run eslint
-        # cd webui
-        # npm run eslint
+        mkdir webui
+        dir
+        mv ./Vertex/app/static/* ./webui/
+        cd webui
+        dir
+    - name: Install Inno Setup Compiler
+      uses: pwall2222/inno-setup-download@v0.0.4
+      run: |
+        pwd
+        dir
+        mkdir Node14
+        cd Node14
+        Copy-Item -Path "C:\hostedtoolcache\windows\node\14.21.3\x64\*" -Destination .
+
+
+    - name: Compile Inno Setup Script
+      run: |
+        dir
+        cd Inno-Setup-Vertex
+        Copy-Item -Path ".\ChineseSimplified.isl" -Destination "C:\Users\runneradmin\AppData\Local\Temp\inno\Languages"
+        iscc "/DMyAppVersion=0.0.1" build.iss
+
     # - name: Prepare Theme Files
     #   working-directory: ./webui
     #   run: |
