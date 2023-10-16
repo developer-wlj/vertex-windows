@@ -24,7 +24,9 @@ jobs:
         ls
         Remove-Item -Path .\webui -Recurse -Force 
         cd app
-        xcopy /Y "./config/sql.db" "./db"
+        Copy-Item -Path "./config/sql.db" -Destination "./db"
+        ls
+        echo =============
         cd ..
         ls
         npm i --save-dev
