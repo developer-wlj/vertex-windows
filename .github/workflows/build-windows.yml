@@ -23,7 +23,7 @@ jobs:
         dir
         cd Vertex
         dir
-        rd /s /q .\webui
+        Remove-Item -Path .\webui -Recurse -Force 
         cd app
         mkdir db
         xcopy /Y "./config/sql.db" "./db"
