@@ -7,26 +7,10 @@ jobs:
   build_windows:
     runs-on: windows-latest
     steps:
-    # - uses: actions/checkout@v3
-    # - run: git fetch --prune --unshallow
-
     - name: Checkout
       uses: actions/checkout@v4
       with:
         path: 'Vertex'
-
-    - name: echo Vertex
-      run: |
-        pwd
-        dir
-        cd Vertex
-        rd /s /q .\webui
-        cd app
-        mkdir db
-        xcopy /Y "./config/sql.db" "./db"
-        cd ..
-        dir
-        npm i --save-dev
         
     - name: Use Node.js 14.x
       uses: actions/setup-node@v3
@@ -36,7 +20,10 @@ jobs:
 
     - name: Install Dependencies
       run: |
+        pwd
+        dir
         cd Vertex
+        dir
         rd /s /q .\webui
         cd app
         mkdir db
@@ -56,12 +43,15 @@ jobs:
         dir
     - name: Install Inno Setup Compiler
       uses: pwall2222/inno-setup-download@v0.0.4
+      
+    - name: COPY NODE
       run: |
         pwd
         dir
         mkdir Node14
         cd Node14
         Copy-Item -Path "C:\hostedtoolcache\windows\node\14.21.3\x64\*" -Destination .
+        dir
 
     - name: 拉取exe代码
       uses: actions/checkout@v3
