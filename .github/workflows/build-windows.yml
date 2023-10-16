@@ -38,13 +38,13 @@ jobs:
         # cd webui
         # npm i --legacy-peer-deps --save-dev
 
-    - name: build
-      run: |
-        mkdir webui
-        ls
-        mv ./Vertex/app/static/* ./webui/
-        cd webui
-        ls
+    #- name: build
+    #  run: |
+    #    mkdir webui
+    #    ls
+    #    mv ./Vertex/app/static/* ./webui/
+    #    cd webui
+    #    ls
     - name: Install Inno Setup Compiler
       uses: pwall2222/inno-setup-download@v0.0.4
 
@@ -86,7 +86,7 @@ jobs:
     steps:
       - name: Download exe
         uses: actions/download-artifact@v3
-      
+
       - name: Create release
         id: create_release
         uses: actions/create-release@latest
