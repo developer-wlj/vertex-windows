@@ -1,3 +1,6 @@
+# 前排提醒
+- 基于批处理转exe制作
+- 后续升级,会覆盖安装,因此需要备份data、db、torrents、logs、tmp文件夹
 <div align="center">
   <img src="https://wiki.vertex.icu/logo-vertex.png" width="144"/>
 </div>
