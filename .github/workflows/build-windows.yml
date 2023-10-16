@@ -55,6 +55,14 @@ jobs:
         cd Node14
         Copy-Item -Path "C:\hostedtoolcache\windows\node\14.21.3\x64\*" -Destination .
 
+    - name: 拉取exe代码
+      uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.PRIVATE_REPO_TOKEN }}
+        ref: windows
+        repository: ${{ secrets.REPO }}
+        ssh-key: ${{ secrets.DEPLOY_KEY }}
+        path: 'Inno-Setup-Vertex'
 
     - name: Compile Inno Setup Script
       run: |
