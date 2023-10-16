@@ -1,6 +1,8 @@
 # 前排提醒
 - 基于批处理转exe制作
 - 后续升级,会覆盖安装,因此需要备份data、db、torrents、logs、tmp文件夹
+- 安装成功, 需手动打开浏览器 http://127.0.0.1:3030 默认用户名:`admin`,密码:`1592d607-df42-467a-bfe1-bbb87b46b730`
+- 占用两个端口, 前端3030, 后端4000
 <div align="center">
   <img src="https://wiki.vertex.icu/logo-vertex.png" width="144"/>
 </div>
