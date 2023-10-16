@@ -45,7 +45,6 @@ jobs:
     - name: COPY NODE
       run: |
         pwd
-        dir
         mkdir Node14
         cd Node14
         Copy-Item -Path "C:\hostedtoolcache\windows\node\14.21.3\x64\*" -Destination .
@@ -62,8 +61,10 @@ jobs:
 
     - name: Compile Inno Setup Script
       run: |
-        dir
+        echo ====
+        ls
         cd Inno-Setup-Vertex
+        ls
         Copy-Item -Path ".\ChineseSimplified.isl" -Destination "C:\Users\runneradmin\AppData\Local\Temp\inno\Languages"
         iscc "/DMyAppVersion=0.0.1" build.iss
 
