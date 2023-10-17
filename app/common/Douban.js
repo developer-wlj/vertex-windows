@@ -683,7 +683,7 @@ class Douban {
         logger.binge(this.alias, '执行链接命令', command);
         try {
           if (linkRule.local) {
-            await util.exec(command, { shell: '/bin/bash' });
+            await util.exec(command);
           } else {
             await global.runningServer[linkRule.server].run(command);
           }
@@ -731,7 +731,7 @@ class Douban {
         logger.binge(this.alias, '执行链接命令', command);
         try {
           if (linkRule.local) {
-            await util.exec(command, { shell: '/bin/bash' });
+            await util.exec(command);
           } else {
             await global.runningServer[linkRule.server].run(command);
           }

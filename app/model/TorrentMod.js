@@ -180,13 +180,13 @@ class TorrentMod {
         const linkFilePath = path.join(_linkRule.linkFilePath, libraryPath, seriesName, season).replace(/'/g, '\\\'');
         const linkFile = path.join(linkFilePath, (prefix + season + episode + suffix + group + fileExt).replace(/'/g, '\\\''));
         const targetFile = path.join(savePath.replace(_linkRule.targetPath.split('##')[0], _linkRule.targetPath.split('##')[1]), file.name).replace(/'/g, '\\\'');
-        const linkMode = _linkRule.hardlink ? 'f' : 'sf';
+        const linkMode = _linkRule.hardlink ? 'h' : 'y';
         logger.binge(_linkRule, _linkRule.hardlink, linkMode);
-        const command = `${_linkRule.umask ? 'umask ' + _linkRule.umask + ' && ' : ''}mkdir -p $'${linkFilePath}' && ln -${linkMode} $'${targetFile}' $'${linkFile}'`;
+        const command = `${_linkRule.umask ? 'umask ' + _linkRule.umask + ' && ' : ''}mkdir -p $'${linkFilePath}' && mklink /${linkMode} $'${targetFile}' $'${linkFile}'`;
         logger.binge('手动链接', '执行链接命令', command);
         try {
           if (_linkRule.local) {
-            await util.exec(command, { shell: '/bin/bash' });
+            await util.exec(command);
           } else {
             await global.runningServer[_linkRule.server].run(command);
           }
@@ -224,12 +224,12 @@ class TorrentMod {
         const linkFilePath = path.join(_linkRule.linkFilePath, libraryPath, `${movieName}${year}`).replace(/'/g, '\\\'');
         const linkFile = path.join(linkFilePath, `${movieName}${year}${suffix + group}${fileExt}`.replace(/'/g, '\\\''));
         const targetFile = path.join(savePath.replace(_linkRule.targetPath.split('##')[0], _linkRule.targetPath.split('##')[1]), file.name).replace(/'/g, '\\\'');
-        const linkMode = _linkRule.hardlink ? 'f' : 'sf';
-        const command = `${_linkRule.umask ? 'umask ' + _linkRule.umask + ' && ' : ''}mkdir -p $'${linkFilePath}' && ln -${linkMode} $'${targetFile}' $'${linkFile}'`;
+        const linkMode = _linkRule.hardlink ? 'h' : 'y';
+        const command = `${_linkRule.umask ? 'umask ' + _linkRule.umask + ' && ' : ''}mkdir -p $'${linkFilePath}' && mklink /${linkMode} $'${targetFile}' $'${linkFile}'`;
         logger.binge('手动链接', '执行链接命令', command);
         try {
           if (_linkRule.local) {
-            await util.exec(command, { shell: '/bin/bash' });
+            await util.exec(command);
           } else {
             await global.runningServer[_linkRule.server].run(command);
           }
@@ -289,12 +289,12 @@ class TorrentMod {
       const linkFile = path.join(linkFilePath, fileBasename);
       const targetFile = filePathname
         .replace(/'/g, '\\\'');
-      const linkMode = _linkRule.hardlink ? 'f' : 'sf';
-      const command = `${_linkRule.umask ? 'umask ' + _linkRule.umask + ' && ' : ''}mkdir -p $'${linkFilePath}' && ln -${linkMode} $'${targetFile}' $'${linkFile}'`;
+      const linkMode = _linkRule.hardlink ? 'h' : 'y';
+      const command = `${_linkRule.umask ? 'umask ' + _linkRule.umask + ' && ' : ''}mkdir -p $'${linkFilePath}' && mklink /${linkMode} $'${targetFile}' $'${linkFile}'`;
       logger.binge('手动链接', '执行链接命令', command);
       try {
         if (_linkRule.local) {
-          await util.exec(command, { shell: '/bin/bash' });
+          await util.exec(command);
         } else {
           await global.runningServer[_linkRule.server].run(command);
         }
@@ -329,12 +329,12 @@ class TorrentMod {
         const linkFilePath = path.join(_linkRule.linkFilePath, libraryPath, _file.seriesName, season).replace(/'/g, '\\\'');
         const linkFile = path.join(linkFilePath, _file.linkFile.replace(/'/g, '\\\''));
         const targetFile = path.join(savePath.replace(_linkRule.targetPath.split('##')[0], _linkRule.targetPath.split('##')[1]), file.name).replace(/'/g, '\\\'');
-        const linkMode = _linkRule.hardlink ? 'f' : 'sf';
-        const command = `${_linkRule.umask ? 'umask ' + _linkRule.umask + ' && ' : ''}mkdir -p $'${linkFilePath}' && ln -${linkMode} $'${targetFile}' $'${linkFile}'`;
+        const linkMode = _linkRule.hardlink ? 'h' : 'y';
+        const command = `${_linkRule.umask ? 'umask ' + _linkRule.umask + ' && ' : ''}mkdir -p $'${linkFilePath}' && mklink /${linkMode} $'${targetFile}' $'${linkFile}'`;
         logger.binge('手动链接', '执行链接命令', command);
         try {
           if (_linkRule.local) {
-            await util.exec(command, { shell: '/bin/bash' });
+            await util.exec(command);
           } else {
             await global.runningServer[_linkRule.server].run(command);
           }
@@ -351,12 +351,12 @@ class TorrentMod {
         const linkFilePath = path.join(_linkRule.linkFilePath, libraryPath, _file.folderName).replace(/'/g, '\\\'');
         const linkFile = path.join(linkFilePath, _file.linkFile.replace(/'/g, '\\\''));
         const targetFile = path.join(savePath.replace(_linkRule.targetPath.split('##')[0], _linkRule.targetPath.split('##')[1]), file.name).replace(/'/g, '\\\'');
-        const linkMode = _linkRule.hardlink ? 'f' : 'sf';
-        const command = `${_linkRule.umask ? 'umask ' + _linkRule.umask + ' && ' : ''}mkdir -p $'${linkFilePath}' && ln -${linkMode} $'${targetFile}' $'${linkFile}'`;
+        const linkMode = _linkRule.hardlink ? 'h' : 'y';
+        const command = `${_linkRule.umask ? 'umask ' + _linkRule.umask + ' && ' : ''}mkdir -p $'${linkFilePath}' && mklink /${linkMode} $'${targetFile}' $'${linkFile}'`;
         logger.binge('手动链接', '执行链接命令', command);
         try {
           if (_linkRule.local) {
-            await util.exec(command, { shell: '/bin/bash' });
+            await util.exec(command);
           } else {
             await global.runningServer[_linkRule.server].run(command);
           }

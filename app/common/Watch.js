@@ -196,7 +196,7 @@ class Watch {
         logger.watch(this.alias, '执行链接命令', command);
         try {
           if (linkRule.local) {
-            await util.exec(command, { shell: '/bin/bash' });
+            await util.exec(command);
           } else {
             await global.runningServer[linkRule.server].run(command);
           }
@@ -239,7 +239,7 @@ class Watch {
         logger.watch(this.alias, '执行链接命令', command);
         try {
           if (linkRule.local) {
-            await util.exec(command, { shell: '/bin/bash' });
+            await util.exec(command);
           } else {
             await global.runningServer[linkRule.server].run(command);
           }
@@ -301,12 +301,12 @@ class Watch {
       const linkFilePath = path.join(...(keepTopDir ? pathsKeepTopDir : paths)).replace(/'/g, '\\\'');
       const linkFile = path.join(linkFilePath, fileBasename.replace(/'/g, '\\\''));
       const targetFile = filePathname.replace(/'/g, '\\\'');
-      const linkMode = _linkRule.hardlink ? 'f' : 'sf';
-      const command = `${_linkRule.umask ? 'umask ' + _linkRule.umask + ' && ' : ''}mkdir -p $'${linkFilePath}' && ln -${linkMode} $'${targetFile}' $'${linkFile}'`;
+      const linkMode = _linkRule.hardlink ? 'h' : 'y';
+      const command = `${_linkRule.umask ? 'umask ' + _linkRule.umask + ' && ' : ''}mkdir -p $'${linkFilePath}' && mklink /${linkMode} $'${targetFile}' $'${linkFile}'`;
       logger.binge('手动链接', '执行链接命令', command);
       try {
         if (_linkRule.local) {
-          await util.exec(command, { shell: '/bin/bash' });
+          await util.exec(command);
         } else {
           await global.runningServer[_linkRule.server].run(command);
         }
