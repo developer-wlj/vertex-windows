@@ -191,12 +191,13 @@ class Watch {
         const linkFilePath = path.join(linkRule.linkFilePath, this.libraryPath.split(':')[1], `${seriesName}(${year})`, season).replace(/'/g, '\\\'');
         const linkFile = path.join(linkFilePath, prefix + season + episode + suffix + group + fileExt).replace(/'/g, '\\\'');
         const targetFile = path.join(torrent.savePath.replace(linkRule.targetPath.split('##')[0], linkRule.targetPath.split('##')[1]), file.name).replace(/'/g, '\\\'');
-        const linkMode = linkRule.hardlink ? 'h' : 'y';
-        const command = `${linkRule.umask ? 'umask ' + linkRule.umask + ' && ' : ''}mkdir -p $'${linkFilePath}' && mklink /${linkMode} $'${targetFile}' $'${linkFile}'`;
+        const linkMode = linkRule.hardlink ? '/h' : '';
+        const command = [`IF NOT EXIST "${linkFilePath}" mkdir "${linkFilePath}"`,`mklink ${linkMode} "${linkFile}" "${targetFile}"`];
         logger.watch(this.alias, '执行链接命令', command);
         try {
           if (linkRule.local) {
-            await util.exec(command);
+            await util.exec(command[0]);
+            await util.exec(command[1]);
           } else {
             await global.runningServer[linkRule.server].run(command);
           }
@@ -234,12 +235,13 @@ class Watch {
         const linkFilePath = path.join(linkRule.linkFilePath, this.libraryPath.split(':')[0], `${movieName}${_year}`).replace(/'/g, '\\\'');
         const linkFile = path.join(linkFilePath, `${movieName}${_year}${suffix + group}${fileExt}`.replace(/'/g, '\\\''));
         const targetFile = path.join(torrent.savePath.replace(linkRule.targetPath.split('##')[0], linkRule.targetPath.split('##')[1]), file.name).replace(/'/g, '\\\'');
-        const linkMode = linkRule.hardlink ? 'h' : 'y';
-        const command = `${linkRule.umask ? 'umask ' + linkRule.umask + ' && ' : ''}mkdir -p $'${linkFilePath}' && mklink /${linkMode} $'${targetFile}' $'${linkFile}'`;
+        const linkMode = linkRule.hardlink ? '/h' : '';
+        const command = [`IF NOT EXIST "${linkFilePath}" mkdir "${linkFilePath}"`,`mklink ${linkMode} "${linkFile}" "${targetFile}"`];
         logger.watch(this.alias, '执行链接命令', command);
         try {
           if (linkRule.local) {
-            await util.exec(command);
+            await util.exec(command[0]);
+            await util.exec(command[1]);
           } else {
             await global.runningServer[linkRule.server].run(command);
           }
@@ -301,12 +303,13 @@ class Watch {
       const linkFilePath = path.join(...(keepTopDir ? pathsKeepTopDir : paths)).replace(/'/g, '\\\'');
       const linkFile = path.join(linkFilePath, fileBasename.replace(/'/g, '\\\''));
       const targetFile = filePathname.replace(/'/g, '\\\'');
-      const linkMode = _linkRule.hardlink ? 'h' : 'y';
-      const command = `${_linkRule.umask ? 'umask ' + _linkRule.umask + ' && ' : ''}mkdir -p $'${linkFilePath}' && mklink /${linkMode} $'${targetFile}' $'${linkFile}'`;
+      const linkMode = _linkRule.hardlink ? '/h' : '';
+      const command = [`IF NOT EXIST "${linkFilePath}" mkdir "${linkFilePath}"`,`mklink ${linkMode} "${linkFile}" "${targetFile}"`];
       logger.binge('手动链接', '执行链接命令', command);
       try {
         if (_linkRule.local) {
-          await util.exec(command);
+          await util.exec(command[0]);
+          await util.exec(command[1]);
         } else {
           await global.runningServer[_linkRule.server].run(command);
         }

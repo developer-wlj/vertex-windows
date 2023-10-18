@@ -678,12 +678,13 @@ class Douban {
         const linkFilePath = path.join(linkRule.linkFilePath, category.libraryPath, seriesName, season).replace(/'/g, '\\\'');
         const linkFile = path.join(linkFilePath, (prefix + season + episode + suffix + group + fileExt).replace(/'/g, '\\\''));
         const targetFile = path.join(torrent.savePath.replace(linkRule.targetPath.split('##')[0], linkRule.targetPath.split('##')[1]), file.name).replace(/'/g, '\\\'');
-        const linkMode = linkRule.hardlink ? 'h' : 'y';
-        const command = `${linkRule.umask ? 'umask ' + linkRule.umask + ' && ' : ''}mkdir -p $'${linkFilePath}' && mklink /${linkMode} $'${targetFile}' $'${linkFile}'`;
+        const linkMode = linkRule.hardlink ? '/h' : '';
+        const command = [`IF NOT EXIST "${linkFilePath}" mkdir "${linkFilePath}"`,`mklink ${linkMode} "${linkFile}" "${targetFile}"`];
         logger.binge(this.alias, '执行链接命令', command);
         try {
           if (linkRule.local) {
-            await util.exec(command);
+            await util.exec(command[0]);
+            await util.exec(command[1]);
           } else {
             await global.runningServer[linkRule.server].run(command);
           }
@@ -726,12 +727,13 @@ class Douban {
         const linkFilePath = path.join(linkRule.linkFilePath, category.libraryPath, `${movieName}${year}`).replace(/'/g, '\\\'');
         const linkFile = path.join(linkFilePath, `${movieName}${year}${suffix + group}${fileExt}`.replace(/'/g, '\\\''));
         const targetFile = path.join(torrent.savePath.replace(linkRule.targetPath.split('##')[0], linkRule.targetPath.split('##')[1]), file.name).replace(/'/g, '\\\'');
-        const linkMode = linkRule.hardlink ? 'h' : 'y';
-        const command = `${linkRule.umask ? 'umask ' + linkRule.umask + ' && ' : ''}mkdir -p $'${linkFilePath}' && mklink /${linkMode} $'${targetFile}' $'${linkFile}'`;
+        const linkMode = linkRule.hardlink ? '/h' : '';
+        const command = [`IF NOT EXIST "${linkFilePath}" mkdir "${linkFilePath}"`,`mklink ${linkMode} "${linkFile}" "${targetFile}"`];
         logger.binge(this.alias, '执行链接命令', command);
         try {
           if (linkRule.local) {
-            await util.exec(command);
+            await util.exec(command[0]);
+            await util.exec(command[1]);
           } else {
             await global.runningServer[linkRule.server].run(command);
           }
