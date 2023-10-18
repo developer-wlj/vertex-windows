@@ -6,8 +6,8 @@ const tar = require('tar');
 const md5 = require('md5-node');
 const request = require('request');
 const Database = require('better-sqlite3');
-const puppeteer = require('puppeteer-extra');
-const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+// const puppeteer = require('puppeteer-extra');
+// const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const url = require('url');
 const { JSDOM } = require('jsdom');
 const moment = require('moment');
@@ -17,9 +17,9 @@ const logger = require('./logger');
 const scrape = require('./scrape');
 
 const db = new Database(path.join(__dirname, '../db/sql.db'));
-puppeteer.use(StealthPlugin());
+// puppeteer.use(StealthPlugin());
 
-let browser;
+// let browser;
 
 const ttl = 15000;
 
@@ -99,70 +99,13 @@ exports.requestPromise = async function (_options, usePuppeteer = true) {
   const res = await exports._requestPromise(options);
   if (usePuppeteer && res.body && typeof res.body === 'string' && (res.body.indexOf('trk_jschal_js') !== -1 || res.body.indexOf('jschl-answer') !== -1 || (res.body.indexOf('cloudflare-static') !== -1 && res.body.indexOf('email-decode.min.js') === -1))) {
     logger.info(new url.URL(options.url).hostname, '疑似遇到 5s 盾, 启用 Puppeteer 抓取页面....');
-    return await exports.requestUsePuppeteer(options);
+    return {
+      body: 'windows暂不支持跳过CF'
+    };
   }
   return res;
 };
 
-exports.requestUsePuppeteer = async function (options) {
-  const lock = await exports.redlock.lock('vertex:puppeteer', ttl);
-  logger.debug('locked');
-  try {
-    if (!browser || browser.process().exitCode === 0) {
-      browser = await puppeteer.launch({
-        executablePath: '/usr/bin/chromium',
-        args: [
-          '--no-sandbox'
-        ],
-        headless: false
-      });
-    }
-    lock.unlock();
-    logger.debug('unlocked');
-  } catch (e) {
-    logger.error(e);
-    lock.unlock();
-    logger.debug('unlocked');
-  }
-  const page = await browser.newPage();
-  try {
-    await page.setViewport({ width: 800, height: 600 });
-    await page.setUserAgent(options.headers['User-Agent']);
-    if (options.headers.cookie) {
-      const cookieList = options.headers.cookie.split(';').map(i => i.trim())
-        .filter(i => i !== '')
-        .map(i => {
-          return {
-            name: i.split('=')[0],
-            value: i.split('=')[1],
-            domain: new url.URL(options.url).hostname
-          };
-        });
-      if (cookieList.length !== 0) await page.setCookie(...cookieList);
-    }
-    await page.goto(options.url, {});
-    await page.waitForTimeout(30000);
-    const body = await page.content();
-    await page.close();
-    if ((await browser.pages()).length === 1) {
-      logger.info('关闭 Puppeteer....');
-      await browser.close();
-    }
-    return {
-      body
-    };
-  } catch (e) {
-    logger.error('Puppeteer 报错:\n', e);
-    await page.close();
-    if ((await browser.pages()).length === 1) {
-      logger.info('关闭 Puppeteer....');
-      await browser.close();
-    }
-    return {
-      body: ''
-    };
-  }
-};
 
 exports.exec = util.promisify(require('child_process').exec);
 exports.uuid = uuid;
@@ -202,14 +145,13 @@ exports.scrapeNameByFile = async function (_filename, type, _year = false, useFu
     type,
     apiKey: global.panelKey
   };
-  const url = 'https://dash.vertex-app.top/api/tmdb/search?' + exports.formatQSString(qs);
+  const url = `https://api.themoviedb.org/3/search/${type=='movie'?'movie':'tv'}?query=${encodeURIComponent(searchKey)}&include_adult=false&language=zh-CN&page=1&year=${encodeURIComponent(year)}&api_key=d61e07a059921662f5b3367578b3f99b`;
   const res = await exports.requestPromise(url);
-  let body = JSON.parse(res.body);
-  if (!body.success) {
-    logger.error(filename, searchKey, body);
+  if (res.statusCode!=200) {
+    logger.error(filename, searchKey, res.body);
     throw new Error('请求 TMDB 信息返回有误, 请重试');
   }
-  body = body.data;
+  let body = JSON.parse(res.body);
   body.results = body.results.sort((a, b) => b.popularity - a.popularity);
   logger.debug('根据文件名抓取影视剧名', filename, searchKey, body.results[0]?.name || body.results[0]?.title || '');
   logger.debug(`请求信息 名: ${searchKey}, 年份: ${year}, 类型: ${type}`);
