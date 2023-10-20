@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const child_process = require('child_process');
 const moment = require('moment');
 const util = require('../libs/util');
 const redis = require('../libs/redis');
@@ -166,30 +167,38 @@ class SettingMod {
   };
 
   async backupVertex (options) {
-    const child_process = require('child_process');
-    const backupsFile = `Vertex-backups-${moment().format('YYYY-MM-DD_HH:mm:ss')}.tar.gz`;
-    const backupsFileds = ['./app/db', './app/data', './app/config'];
+    const backupsFile = `Vertex-backups-${moment().format('YYYY-MM-DD_HH-mm-ss')}.7z`;
+    const backupsFileds = ['db', 'data', 'config'];
     if (options.bt + '' === 'true') {
-      backupsFileds.push('./torrents');
+      backupsFileds.push('torrents');
     }
-    // await util.tar.c({
-    //   gzip: true,
-    //   file: backupsFile,
-    //   cwd: "."
-    // }, backupsFileds);
-    // return backupsFile;
-    return "Windows暂不支持";
+    const command=[];
+    backupsFileds.forEach((e,index) =>{
+      if (index==3) {
+        command.push(`IF NOT EXIST "./tmp/${e}" mkdir "./tmp/${e}"`)
+        command.push(`xcopy /e /y "${e}" "./tmp/${e}"`)
+        return
+      }
+      command.push(`IF NOT EXIST "./tmp/${e}" mkdir "./tmp/${e}"`)
+      command.push(`xcopy /e /y "app/${e}" "./tmp/${e}"`)
+    })
+    command.push(`cd ./tmp && 7z a -mx9 "${backupsFile}" ${backupsFileds.join(' ')}`);
+    console.log(command);
+    command.forEach(cmd=>child_process.execSync(cmd))
+    return "./tmp/"+backupsFile;
   }
 
   async restoreVertex (options) {
     const backupsFile = options.file.path || options.file.originalFilename;
-    // await util.tar.x({
-    //   gzip: true,
-    //   file: backupsFile,
-    //   C: '/tmp'
-    // });
-    // return '数据导入成功, 重启容器后生效。';
-    return 'Windows暂不支持。';
+    const command=[`rd /s/q tmp && mkdir tmp`,
+            `cd tmp && 7z x -o"." "${backupsFile}"`,
+            `IF EXIST "./tmp/torrents" xcopy /e /y "./tmp/torrents" "torrents"`,
+            `IF EXIST "./tmp/db" xcopy /e /y "./tmp/db" "app/db"`,
+            `IF EXIST "./tmp/data" xcopy /e /y "./tmp/data" "app/data"`,
+            `IF EXIST "./tmp/config" xcopy /e /y "./tmp/config" "app/config"`
+            ]
+    command.forEach(cmd=>child_process.execSync(cmd))
+    return '数据导入成功, 重启Vertex后生效。';
   }
 
   async networkTest (options) {
