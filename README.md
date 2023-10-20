@@ -1,9 +1,9 @@
 # 前排提醒
 - 基于批处理转exe制作
-- 后续升级,会覆盖安装,因此需要备份data、db、torrents文件夹,可以使用vertex自带的备份功能
+- 后续升级,会覆盖安装,因此需要备份data、db、torrents文件夹,可以使用vertex自带的备份功能(需要提前安装好7z)
 - 安装成功, 需手动打开浏览器 http://127.0.0.1:4000  
   默认用户名: `admin`  
-  密码: `1592d607-df42-467a-bfe1-bbb87b46b730`
+  密码: `admin`
 <div align="center">
   <img src="https://wiki.vertex.icu/logo-vertex.png" width="144"/>
 </div>
