@@ -145,7 +145,7 @@ exports.scrapeNameByFile = async function (_filename, type, _year = false, useFu
     type,
     apiKey: global.panelKey
   };
-  const url = `https://api.themoviedb.org/3/search/${type=='movie'?'movie':'tv'}?query=${encodeURIComponent(searchKey)}&include_adult=false&language=zh-CN&page=1&year=${encodeURIComponent(year)}&api_key=d61e07a059921662f5b3367578b3f99b`;
+  const url = `https://api.themoviedb.org/3/search/${type=='movie'?'movie':'tv'}?query=${encodeURIComponent(searchKey)}&include_adult=false&language=zh-CN&page=1&year=${encodeURIComponent(year)}&api_key=${(typeof global.tmdbApiKey==='string' && global.tmdbApiKey.length==32)?global.tmdbApiKey:'db55323b8d3e4154498498a75642b381'}`;
   const res = await exports.requestPromise(url);
   if (res.statusCode!=200) {
     logger.error(filename, searchKey, res.body);
