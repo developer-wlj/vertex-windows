@@ -83,6 +83,8 @@ class SettingMod {
       global.doubanPush = new Push({ ...doubanPush, push: true });
       global.doubanPush.modifyWechatMenu();
     }
+    // cookiecloud
+    util.initCookieCloud();
     return '修改全局设置成功, 部分设定需要刷新页面生效';
   };
 
@@ -208,37 +210,6 @@ class SettingMod {
         cookie: options.cookie
       }
     });
-  }
-
-  async loginMTeam (options) {
-    const { body } = await util.requestPromise({
-      url: 'https://xp.m-team.io/index.php',
-      headers: {
-        cookie: options.cookie
-      }
-    }, false);
-    const username = body.match(/userdetails.*?<b>(.*)<\/b>/);
-    if (username) {
-      return '无需登录 ' + username[1] + ' 使用已有 Cookie 即可';
-    }
-    if (body.indexOf('M-Team') === -1) {
-      throw new Error('疑似遇到 5s 盾, 请手动获取 Cookie 并重试');
-    }
-    const { headers } = await util.requestPromise({
-      url: 'https://xp.m-team.io/verify.php?returnto=%2F',
-      method: 'POST',
-      headers: {
-        cookie: options.cookie
-      },
-      formData: {
-        otp: options.otp
-      }
-    }, false);
-    if (headers.location === 'https://kp.m-team.cc/') {
-      return '登录成功';
-    } else {
-      throw new Error('登录失败, 请重试');
-    }
   }
 
   async getTrackerFlowHistory () {

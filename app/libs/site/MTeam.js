@@ -4,7 +4,7 @@ const moment = require('moment');
 const _api = async function (cookie, path, data, type = 'form') {
   if (type === 'form') {
     const { body } = await util.requestPromise({
-      url: `https://xp.m-team.io${path}`,
+      url: `https://api.m-team.cc${path}`,
       method: 'POST',
       headers: {
         'x-api-key': cookie
@@ -16,7 +16,7 @@ const _api = async function (cookie, path, data, type = 'form') {
   }
   if (type === 'json') {
     const { body } = await util.requestPromise({
-      url: `https://xp.m-team.io${path}`,
+      url: `https://api.m-team.cc${path}`,
       method: 'POST',
       headers: {
         'x-api-key': cookie
@@ -31,14 +31,13 @@ const _api = async function (cookie, path, data, type = 'form') {
 class Site {
   constructor () {
     this.name = 'MTeam';
-    this.downloadLink = 'https://xp.m-team.io/download.php?id={ID}&https=1';
-    this.url = 'https://xp.m-team.io/';
+    this.url = 'https://kp.m-team.cc/';
     this.id = 3;
   };
 
   async getInfo () {
     const info = {};
-    const profile = await _api(this.cookie, '/api/member/profile', {});
+    const profile = await _api(this.cookie, '/api/member/profile', {}, 'json');
     if (!profile) {
       throw new Error('疑似登录状态失效, 请检查 Api Key');
     }
@@ -51,7 +50,7 @@ class Site {
     // 下载
     info.download = profile.memberCount.downloaded;
 
-    const peerlist = await _api(this.cookie, '/api/tracker/myPeerStatus', {});
+    const peerlist = await _api(this.cookie, '/api/tracker/myPeerStatus', {}, 'json');
     if (!peerlist) {
       throw new Error('疑似登录状态失效, 请检查 Api Key');
     }
@@ -101,7 +100,7 @@ class Site {
       torrent.subtitle = _torrent.smallDescr;
       torrent.category = categorymap[_torrent.category]?.nameChs || '';
       torrent.id = _torrent.id;
-      torrent.link = this.url + `detail/${torrent.id}`;
+      torrent.link = this.siteUrl + `detail/${torrent.id}`;
       torrent.seeders = +_torrent.status.seeders;
       torrent.leechers = +_torrent.status.leechers;
       torrent.snatches = +_torrent.status.timesCompleted;
@@ -131,7 +130,7 @@ class Site {
         torrent.subtitle = _torrent.smallDescr;
         torrent.category = categorymap[_torrent.category]?.nameChs || '';
         torrent.id = _torrent.id;
-        torrent.link = this.url + `detail/${torrent.id}`;
+        torrent.link = this.siteUrl + `detail/${torrent.id}`;
         torrent.seeders = +_torrent.status.seeders;
         torrent.leechers = +_torrent.status.leechers;
         torrent.snatches = +_torrent.status.timesCompleted;
@@ -158,8 +157,8 @@ class Site {
 
   async getDownloadLink (link) {
     const tid = link.match(/\/(\d+)/)[1];
-    const dltoken = await _api(this.cookie, '/api/torrent/genDlToken', { id: tid });
-    return dltoken.data;
+    const dltoken = await _api(this.cookie, '/api/torrent/genDlToken', { id: tid }, 'form');
+    return dltoken;
   }
 };
 module.exports = Site;

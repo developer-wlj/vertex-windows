@@ -18,8 +18,7 @@
       >
       <a-descriptions-item label="Telegram 频道"><a @click="gotoChannel">前往</a></a-descriptions-item>
       <a-descriptions-item label="Telegram 群组"><a @click="gotoGroup">前往</a></a-descriptions-item>
-      <a-descriptions-item label="刷流交流群">852643057</a-descriptions-item>
-      <a-descriptions-item label="追剧交流群">926921776</a-descriptions-item>
+      <a-descriptions-item label="交流群">852643057</a-descriptions-item>
     </a-descriptions>
     <a-divider></a-divider>
     <a-descriptions
@@ -36,8 +35,8 @@
       <a-descriptions-item label="Wiki"><a @click="gotoWiki">Wiki</a></a-descriptions-item>
     </a-descriptions>
     <a-divider></a-divider>
-    <div style="font-size: 16px; font-weight: bold;">微信公众号</div>
-    <img style="max-height: 480px; max-width: calc(100vw - 32px); margin: 0 auto;" src="/assets/images/subscription.jpg"/>
+    <div style="font-size: 16px; font-weight: bold;">打赏，如果你觉得这个项目对你有帮助，可以对我打赏，感谢！</div>
+    <img style="max-height: 320px; max-width: calc(100vw - 32px); margin: 0 auto;" src="https://lswl.in/assets/images/alipay_qrcode.png"/>
   </div>
 </template>
 <script>

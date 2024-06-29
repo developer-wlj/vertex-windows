@@ -76,6 +76,8 @@
             <a-select-option value="telegram">Telegram</a-select-option>
             <a-select-option value="wechat">WeChat</a-select-option>
             <a-select-option value="slack">Slack</a-select-option>
+            <a-select-option value="ntfy">Ntfy</a-select-option>
+            <a-select-option value="webhook">Webhook</a-select-option>
           </a-select>
         </a-form-item>
         <a-form-item
@@ -120,6 +122,40 @@
           <a-input size="small" v-model:value="notification.telegramChannel"/>
         </a-form-item>
         <a-form-item
+          v-if="notification.type === 'ntfy'"
+          label="Ntfy URL"
+          name="ntfyUrl"
+          extra="格式: https://ntfy.sh/mytopic"
+          :rules="[{ required: true, message: '${label}不可为空! ' }]">
+          <a-input size="small" v-model:value="notification.ntfyUrl"/>
+        </a-form-item>
+        <a-form-item
+          v-if="notification.type === 'ntfy'"
+          label="用户名"
+          name="ntfyUsername">
+          <a-input size="small" v-model:value="notification.ntfyUsername"/>
+        </a-form-item>
+        <a-form-item
+          v-if="notification.type === 'ntfy'"
+          label="密码"
+          name="ntfyPassword">
+          <a-input size="small" v-model:value="notification.ntfyPassword"/>
+        </a-form-item>
+        <a-form-item
+          v-if="notification.type === 'ntfy'"
+          label="Token"
+          name="ntfyToken"
+          extra="使用Token或用户名+密码进行认证">
+          <a-input size="small" v-model:value="notification.ntfyToken"/>
+        </a-form-item>
+        <a-form-item
+          v-if="notification.type === 'ntfy'"
+          label="优先级"
+          name="ntfyPriority"
+          extra="5最高, 1最低, 不填写为默认值3">
+          <a-input size="small" v-model:value="notification.ntfyPriority"/>
+        </a-form-item>
+        <a-form-item
           v-if="notification.type === 'slack'"
           label="Webhook"
           name="slackWebhook"
@@ -133,6 +169,22 @@
           extra="如果仅使用推送通知功能，可随意填写内容"
           :rules="[{ required: true, message: '${label}不可为空! ' }]">
           <a-input size="small" v-model:value="notification.slackToken"/>
+        </a-form-item>
+        <a-form-item
+          v-if="notification.type === 'webhook'"
+          label="Url"
+          name="webhookurl"
+          extra="填写目标地址, 请注意推送内容中包含敏感信息, 因此必须保证目标地址可信"
+          :rules="[{ required: true, message: '${label}不可为空! ' }]">
+          <a-input size="small" v-model:value="notification.webhookurl"/>
+        </a-form-item>
+        <a-form-item
+          v-if="notification.type === 'webhook'"
+          label="Token"
+          name="token"
+          extra="在请求时会将 token 放入请求头的 x-vertex-token 中"
+          :rules="[{ required: true, message: '${label}不可为空! ' }]">
+          <a-input size="small" v-model:value="notification.token"/>
         </a-form-item>
         <a-form-item
           label="推送类型"
