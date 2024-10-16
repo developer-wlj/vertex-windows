@@ -50,8 +50,13 @@ jobs:
     #    mv ./Vertex/app/static/* ./webui/
     #    cd webui
     #    ls
+#    - name: Install Inno Setup Compiler
+#      uses: pwall2222/inno-setup-download@v0.0.4
+
     - name: Install Inno Setup Compiler
-      uses: pwall2222/inno-setup-download@v0.0.4
+      run: |
+        Invoke-WebRequest https://jrsoftware.org/download.php/is.exe?site=1 -OutFile is.exe
+        Start-Process is.exe -ArgumentList "/VERYSILENT", "/NORETART", "/SP-","/SUPPRESSMSGBOXES","/DIR=C:\Users\runneradmin\AppData\Local\Temp\inno" -NoNewWindow -Wait
 
     - name: COPY NODE
       run: |
@@ -74,7 +79,7 @@ jobs:
         echo ====
         ls
         cd Inno-Setup-Vertex
-        Copy-Item -Path ".\ChineseSimplified.isl" -Destination "C:\Users\runneradmin\AppData\Local\Temp\inno\Languages"
+        Copy-Item -Path ".\ChineseSimplified.isl" -Destination "c:\program files (x86)\inno setup 6\Languages"
         echo "${{ steps.get_version.outputs.KEY }}"
         iscc "/DMyAppVersion=${{ steps.get_version.outputs.KEY }}" build.iss
 
