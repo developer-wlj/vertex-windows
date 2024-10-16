@@ -1,4 +1,6 @@
 const util = require('../util');
+const fs = require('fs');
+const path = require('path');
 
 exports.login = async function (username, clientUrl, password) {
   const message = {
@@ -18,7 +20,7 @@ exports.login = async function (username, clientUrl, password) {
   return res.headers['set-cookie'][0].substring(0, res.headers['set-cookie'][0].indexOf(';'));
 };
 
-exports.addTorrent = async function (clientUrl, cookie, torrentUrl, isSkipChecking, uploadLimit, downloadLimit, savePath, label) {
+exports.addTorrent = async function (clientUrl, cookie, torrentUrl, isSkipChecking, uploadLimit, downloadLimit, savePath, label, autoTMM, firstLastPiecePrio, paused) {
   let message = {
     method: 'POST',
     url: clientUrl + '/json',
@@ -26,61 +28,144 @@ exports.addTorrent = async function (clientUrl, cookie, torrentUrl, isSkipChecki
     gzip: true,
     body: {
       id: 0,
-      method: 'web.download_torrent_from_url',
-      params: [
-        torrentUrl,
-        ''
-      ]
+      method: 'core.add_torrent_url',
+      params:
+        [torrentUrl,
+          {
+            sequential_download: false,
+            pre_allocate_storage: false,
+            move_completed: false,
+            max_connections: -1,
+            max_download_speed: downloadLimit ? (downloadLimit / 1024) : -1,
+            max_upload_slots: -1,
+            max_upload_speed: uploadLimit ? (uploadLimit / 1024) : -1,
+            prioritize_first_last_pieces: firstLastPiecePrio,
+            seed_mode: isSkipChecking,
+            super_seeding: false
+          }
+        ]
     },
     headers: {
       cookie
     }
   };
+  if (paused) {
+    message.body.params[1].add_paused = paused;
+  }
+  if (savePath) {
+    message.body.params[1].download_location = savePath;
+  }
   let res = await util.requestPromise(message);
-  const torrentPath = res.body.result;
-  message = {
+  if (label) {
+    message = {
+      method: 'POST',
+      url: clientUrl + '/json',
+      json: true,
+      gzip: true,
+      body: {
+        method: 'label.set_torrent',
+        params: [res.body.result, label],
+        id: 0
+      },
+      headers: {
+        cookie
+      }
+    };
+    res = await util.requestPromise(message);
+    if (res.body.error && (res.body.error.message.indexOf('Unknown Label') !== -1)) {
+      const addLabelMessage = {
+        method: 'POST',
+        url: clientUrl + '/json',
+        json: true,
+        gzip: true,
+        body: {
+          method: 'label.add',
+          params: [label],
+          id: 0
+        },
+        headers: {
+          cookie
+        }
+      };
+      res = await util.requestPromise(addLabelMessage);
+      res = await util.requestPromise(message);
+    }
+  }
+  return res;
+};
+
+exports.addTorrentByTorrentFile = async function (clientUrl, cookie, filepath, isSkipChecking, uploadLimit, downloadLimit, savePath, label, autoTMM, firstLastPiecePrio, paused) {
+  let message = {
     method: 'POST',
     url: clientUrl + '/json',
     json: true,
     gzip: true,
     body: {
       id: 0,
-      method: 'web.add_torrents',
+      method: 'core.add_torrent_file',
       params: [
-        [
-          {
-            path: torrentPath,
-            options: {
-              file_priorities: [
-                1
-              ],
-              add_paused: false,
-              sequential_download: false,
-              pre_allocate_storage: false,
-              move_completed: false,
-              max_connections: -1,
-              max_download_speed: downloadLimit,
-              max_upload_slots: -1,
-              max_upload_speed: uploadLimit,
-              prioritize_first_last_pieces: false,
-              seed_mode: isSkipChecking,
-              super_seeding: false
-            }
-          }
-        ]
+        path.basename(filepath),
+        fs.readFileSync(filepath).toString('base64'),
+        {
+          sequential_download: false,
+          pre_allocate_storage: false,
+          move_completed: false,
+          max_connections: -1,
+          max_download_speed: downloadLimit ? (downloadLimit / 1024) : -1,
+          max_upload_slots: -1,
+          max_upload_speed: uploadLimit ? (uploadLimit / 1024) : -1,
+          prioritize_first_last_pieces: firstLastPiecePrio,
+          seed_mode: isSkipChecking,
+          super_seeding: false
+        }
       ]
     },
     headers: {
       cookie
     }
   };
+  if (paused) {
+    message.body.params[2].add_paused = paused;
+  }
   if (savePath) {
-    message.body.params[0][0].options.download_location = savePath;
+    message.body.params[2].download_location = savePath;
   }
+  let res = await util.requestPromise(message);
   if (label) {
-    message.body.params[0][0].options.label = label;
+    message = {
+      method: 'POST',
+      url: clientUrl + '/json',
+      json: true,
+      gzip: true,
+      body: {
+        method: 'label.set_torrent',
+        params: [res.body.result, label],
+        id: 0
+      },
+      headers: {
+        cookie
+      }
+    };
+    res = await util.requestPromise(message);
+    if (res.body.error && (res.body.error.message.indexOf('Unknown Label') !== -1)) {
+      const addLableMessage = {
+        method: 'POST',
+        url: clientUrl + '/json',
+        json: true,
+        gzip: true,
+        body: {
+          method: 'label.add',
+          params: [label],
+          id: 0
+        },
+        headers: {
+          cookie
+        }
+      };
+      res = await util.requestPromise(addLableMessage);
+      res = await util.requestPromise(message);
+    }
   }
-  res = await util.requestPromise(message);
   return res;
 };
 
@@ -148,6 +233,7 @@ exports.getMaindata = async function (clientUrl, cookie) {
     }
     torrent.progress = torrent.progress / 100;
     if (+torrent.progress === -1) torrent.progress = 0;
+    torrent.originProp = { ...res.torrents[k] };
     torrent.completedTime = Math.max(Date.now() / 1000 - torrent.seedingTime, torrent.addedTime);
     maindata.torrents.push(torrent);
   }
@@ -175,7 +261,30 @@ exports.reannounceTorrent = async function (clientUrl, cookie, hash) {
   return res;
 };
 
+exports.pauseTorrent = async function (clientUrl, cookie, hash) {
+  const message = {
+    method: 'POST',
+    url: clientUrl + '/json',
+    json: true,
+    gzip: true,
+    body: {
+      id: 0,
+      method: 'core.pause_torrent',
+      params: [
+        [hash]
+      ]
+    },
+    headers: {
+      cookie
+    }
+  };
+  const res = await util.requestPromise(message);
+  return res;
+};
+
 exports.deleteTorrent = async function (clientUrl, cookie, hash, isDeleteFiles) {
+  // 玄学，Deluge删除种子不先暂停有可能会丢最后一次汇报的流量
+  await exports.pauseTorrent(clientUrl, cookie, hash);
   const message = {
     method: 'POST',
     url: clientUrl + '/json',

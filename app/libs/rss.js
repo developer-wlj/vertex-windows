@@ -21,7 +21,8 @@ const _getRssContent = async function (rssUrl, suffix = true) {
     body = cache;
   } else {
     let url = rssUrl;
-    if (suffix) {
+    const isPig = rssUrl.includes('https://piggo.me/');
+    if (suffix && !isPig) {
       url += (rssUrl.indexOf('?') === -1 ? '?' : '&') + '____=' + Math.random();
     }
     let res;
@@ -796,6 +797,33 @@ const _getTorrentsFappaizuri = async function (rssUrl) {
   return torrents;
 };
 
+const _getTorrentsLusthive = async function (rssUrl) {
+  const rss = await parseXml(await _getRssContent(rssUrl));
+  const torrents = [];
+  const items = rss.rss.channel[0].item;
+  for (let i = 0; i < items.length; ++i) {
+    const torrent = {
+      size: 0,
+      name: '',
+      hash: '',
+      id: 0,
+      url: '',
+      link: ''
+    };
+    torrent.size = items[i].torrent[0].contentLength[0];
+    torrent.name = items[i].title[0];
+    const link = items[i].link[0];
+    torrent.link = link;
+    torrent.description = items[i].description ? items[i].description[0] : '';
+    torrent.id = link.substring(link.indexOf('?id=') + 4);
+    torrent.url = items[i].enclosure[0].$.url;
+    torrent.hash = items[i].guid[0]._ || items[i].guid[0];
+    torrent.pubTime = moment(items[i].pubDate[0]).unix();
+    torrents.push(torrent);
+  }
+  return torrents;
+};
+
 const _getTorrentsWrapper = {
   'filelist.io': _getTorrentsFileList,
   'blutopia.cc': _getTorrentsUnit3D2,
@@ -821,13 +849,15 @@ const _getTorrentsWrapper = {
   'rss.torrentleech.org': _getTorrentsTorrentLeech,
   'rss24h.torrentleech.org': _getTorrentsTorrentLeech,
   'fsm.name': _getTorrentsFSM,
+  'api.fsm.name': _getTorrentsFSM,
   'www.happyfappy.org': _getTorrentsHappyFappy,
   'fearnopeer.com': _getTorrentsUnit3D2,
   'jpopsuki.eu': _getTorrentsGazelle,
   'dicmusic.com': _getTorrentsGazelle,
   'greatposterwall.com': _getTorrentsGazelle,
   'libble.me': _getTorrentsGazelle,
-  'fappaizuri.me': _getTorrentsFappaizuri
+  'fappaizuri.me': _getTorrentsFappaizuri,
+  'lusthive.org': _getTorrentsLusthive
 };
 
 exports.getTorrents = async function (rssUrl) {
