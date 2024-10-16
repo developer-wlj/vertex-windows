@@ -209,7 +209,7 @@
           label="超级模式"
           name="advancedMode"
           extra="超级模式, 除了定期搜索站内种子外, 每十分钟向 Vertex Panel 搜索种子"
-          :rules="[{ required: true, message: '${label}不可为空! ' }]">
+          >
           <a-checkbox v-model:checked="subscribe.advancedMode">启用</a-checkbox>
         </a-form-item>
         <a-form-item
