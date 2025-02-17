@@ -176,6 +176,10 @@ class UserMod {
           path: '/tool/proxy',
           icon: ['fas', 'globe']
         }, {
+          title: '清除历史记录',
+          path: '/tool/clearHistory',
+          icon: ['fas', 'trash']
+        }, {
           title: '路径生成器',
           path: '/tool/pathGenerator',
           icon: ['fas', 'terminal']

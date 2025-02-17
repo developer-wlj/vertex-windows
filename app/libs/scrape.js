@@ -159,6 +159,33 @@ const _freeHUDBT = async function (url, cookie) {
   return state;
 };
 
+const _freePuTao = async function (url, cookie) {
+  const d = await getDocument(url, cookie);
+  if (d.body.innerHTML.indexOf('userdetails') === -1) {
+    throw new Error('疑似登录状态失效, 请检查 Cookie');
+  }
+  const state = d.querySelector('b font[class]');
+  return state && ['free', 'twoupfree'].indexOf(state.className) !== -1;
+};
+
+const _freeBitPorn = async function (url, cookie) {
+  const d = await getDocument(url, cookie);
+  if (d.body.innerHTML.indexOf('userdetails') === -1) {
+    throw new Error('疑似登录状态失效, 请检查 Cookie');
+  }
+  const state = Array.from(d.querySelectorAll('span.stic2')).some(el => el.textContent.trim() === '2X Free' || el.textContent.trim() === 'Free');
+  return state;
+};
+
+const _freeLuminance = async function (url, cookie) {
+  const d = await getDocument(url, cookie);
+  if (d.body.innerHTML.indexOf('nav_userinfo') === -1) {
+    throw new Error('疑似登录状态失效, 请检查 Cookie');
+  }
+  const state = d.querySelector('img[alt="Freeleech"]');
+  return state;
+};
+
 const freeWrapper = {
   'pt.btschool.club': _free,
   'club.hares.top': _freeHaresClub,
@@ -196,7 +223,13 @@ const freeWrapper = {
   'byr.pt': _freeByrPT,
   'hhanclub.top': _freeHHanClub,
   'zeus.hamsters.space': _freeHUDBT,
-  'hudbt.hust.edu.cn': _freeHUDBT
+  'hudbt.hust.edu.cn': _freeHUDBT,
+  'bitporn.eu': _freeBitPorn,
+  'pt.sjtu.edu.cn': _freePuTao,
+  'www.empornium.is': _freeLuminance,
+  'www.empornium.sx': _freeLuminance,
+  'www.pixelcove.me': _freeLuminance,
+  'www.cathode-ray.tube': _freeLuminance
 };
 
 const _hr = async function (url, cookie) {

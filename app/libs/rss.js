@@ -22,8 +22,16 @@ const _getRssContent = async function (rssUrl, suffix = true) {
   } else {
     let url = rssUrl;
     const isPig = rssUrl.includes('https://piggo.me/');
+    const isKamept = rssUrl.includes('https://kamept.com/');
+    let placeholder;
+    if (isKamept) {
+      placeholder = 'placeholder';
+    } else {
+      placeholder = '____';
+    }
+
     if (suffix && !isPig) {
-      url += (rssUrl.indexOf('?') === -1 ? '?' : '&') + '____=' + Math.random();
+      url += (rssUrl.indexOf('?') === -1 ? '?' : '&') + `${placeholder}=` + Math.random();
     }
     let res;
     if (rssUrl.includes('https://pt.soulvoice.club/') && global.runningSite.SoulVoice) {
@@ -118,18 +126,22 @@ const _getTorrentsPuTao = async function (rssUrl) {
       url: '',
       link: ''
     };
-    const size = items[i].title[0].match(/\[\d+\.\d+ [KMGT]B\]/)[0]?.match(/\d+\.\d+ [KMGT]B/)[0];
+    const size = items[i].title[0].match(/\[\d+\.\d+ [KMGT]B\]/)?.[0].match(/\d+\.\d+ [KMGT]B/)?.[0];
     const map = {
       KB: 1000,
       MB: 1000 * 1000,
       GB: 1000 * 1000 * 1000,
       TB: 1000 * 1000 * 1000 * 1000
     };
-    torrent.size = size.match(/(\d*\.\d*|\d*) (GB|MB|TB|KB)/);
-    torrent.size = parseFloat(torrent.size[1]) * map[torrent.size[2]];
+    const matchResult = size?.match(/(\d*\.\d*|\d*) (GB|MB|TB|KB)/);
+    if (matchResult) {
+      torrent.size = parseFloat(matchResult[1]) * map[matchResult[2]];
+    } else {
+      torrent.size = 0;
+    }
     torrent.name = items[i].title[0];
     const link = items[i].link[0];
-    torrent.link = link.substring(0, link.indexOf('&passkey='));
+    torrent.link = link.substring(0, link.indexOf('&passkey=')).replace('download', 'details');
     torrent.id = torrent.link.substring(link.indexOf('?id=') + 4);
     torrent.url = link;
     torrent.hash = items[i].guid[0]._ || items[i].guid[0];
@@ -162,7 +174,7 @@ const _getTorrentsFileList = async function (rssUrl) {
     const regRes = size.match(/Size: (\d*\.\d*|\d*) (GB|MB|TB|KB)/);
     torrent.size = parseFloat(regRes[1]) * map[regRes[2]];
     torrent.name = items[i].title[0].replace(/\n/, ' ');
-    const link = items[i].link[0].match(/https:\/\/filelist.io\/download\.php\?id=\d*/)[0].replace('download', 'detailes');
+    const link = items[i].link[0].match(/https:\/\/filelist.io\/download\.php\?id=\d*/)[0].replace('download', 'details');
     torrent.link = link;
     torrent.id = link.substring(link.indexOf('?id=') + 4);
     torrent.hash = 'fakehash' + torrent.id + 'fakehash';
@@ -302,7 +314,7 @@ const _getTorrentsTorrentDB = async function (rssUrl) {
   return torrents;
 };
 
-const _getTorrentsEmpornium = async function (rssUrl) {
+const _getTorrentsLuminance = async function (rssUrl) {
   const rss = await parseXml(await _getRssContent(rssUrl));
   const torrents = [];
   const items = rss.rss.channel[0].item;
@@ -320,26 +332,11 @@ const _getTorrentsEmpornium = async function (rssUrl) {
     torrent.link = link;
     torrent.id = link.substring(link.indexOf('?id=') + 4);
     torrent.url = items[i].enclosure[0].$.url;
-    const cache = await redis.get(`vertex:hash:${torrent.url}`);
-    if (cache) {
-      const _torrent = JSON.parse(cache);
-      torrent.hash = _torrent.hash;
-      torrent.size = _torrent.size;
-    } else {
-      try {
-        const { hash, size } = await exports.getTorrentNameByBencode(torrent.url);
-        torrent.hash = hash;
-        torrent.size = size;
-        await redis.set(`vertex:hash:${torrent.url}`, JSON.stringify(torrent));
-      } catch (e) {
-        await redis.set(`vertex:hash:${torrent.url}`, JSON.stringify({ hash: 'emp' + moment().unix() + 'emp', size: 0 }));
-        throw e;
-      }
-    }
+    torrent.hash = items[i].torrent[0].infoHash[0];
+    torrent.size = items[i].torrent[0].contentLength[0];
     torrent.pubTime = moment(items[i].pubDate[0]).unix();
     torrents.push(torrent);
   }
-
   return torrents;
 };
 
@@ -605,7 +602,7 @@ const _getTorrentsLearnFlakes = async function (rssUrl) {
   return torrents;
 };
 
-const _getTorrentsExoticaZ = async function (rssUrl) {
+const _getTorrentsAvistaZ = async function (rssUrl) {
   const rss = await parseXml(await _getRssContent(rssUrl));
   const torrents = [];
   const items = rss.rss.channel[0].item;
@@ -832,7 +829,10 @@ const _getTorrentsWrapper = {
   'kimoji.club': _getTorrentsKimoji,
   'torrentdb.net': _getTorrentsTorrentDB,
   'uhdbits.org': _getTorrentsGazelle,
-  'www.empornium.is': _getTorrentsEmpornium,
+  'www.empornium.is': _getTorrentsLuminance,
+  'www.empornium.sx': _getTorrentsLuminance,
+  'www.pixelcove.me': _getTorrentsLuminance,
+  'www.cathode-ray.tube': _getTorrentsLuminance,
   'www.skyey2.com': _getTorrentsSkyeySnow,
   'hdbits.org': _getTorrentsHDBits,
   'beyond-hd.me': _getTorrentsBeyondHD,
@@ -842,10 +842,10 @@ const _getTorrentsWrapper = {
   'iptorrents.com': _getTorrentsIPTorrents,
   'mikanani.me': _getTorrentsMikanProject,
   'learnflakes.net': _getTorrentsLearnFlakes,
-  'exoticaz.to': _getTorrentsExoticaZ,
-  'avistaz.to': _getTorrentsExoticaZ,
-  'cinemaz.to': _getTorrentsExoticaZ,
-  'privatehd.to': _getTorrentsExoticaZ,
+  'exoticaz.to': _getTorrentsAvistaZ,
+  'avistaz.to': _getTorrentsAvistaZ,
+  'cinemaz.to': _getTorrentsAvistaZ,
+  'privatehd.to': _getTorrentsAvistaZ,
   'rss.torrentleech.org': _getTorrentsTorrentLeech,
   'rss24h.torrentleech.org': _getTorrentsTorrentLeech,
   'fsm.name': _getTorrentsFSM,

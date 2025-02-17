@@ -422,7 +422,7 @@ exports.calSize = function (size, unit) {
     TiB: 1024 * 1024 * 1024 * 1024,
     PiB: 1024 * 1024 * 1024 * 1024 * 1024
   };
-  return +size * (unitMap[unit] || 1);
+  return Math.floor(+size * (unitMap[unit] || 1));
 };
 
 exports.formatTime = function (ms) {

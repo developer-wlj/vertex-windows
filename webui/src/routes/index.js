@@ -38,6 +38,7 @@ import ToolProxy from '@/pages/tool/Proxy';
 import ToolShell from '@/pages/tool/Shell';
 import ToolPathGenerator from '@/pages/tool/PathGenerator';
 import ToolClientLog from '@/pages/tool/ClientLog';
+import ToolClearHistory from '@/pages/tool/ClearHistory';
 
 import InfoInfo from '@/pages/info/Info';
 import InfoLog from '@/pages/info/Log';
@@ -419,6 +420,12 @@ const tool = {
       component: ToolPathGenerator,
       meta: {
         title: '路径生成器 - 常用工具'
+      }
+    }, {
+      path: 'clearHistory',
+      component: ToolClearHistory,
+      meta: {
+        title: '清除历史记录 - 常用工具'
       }
     }, {
       path: 'shell/:id',

@@ -345,9 +345,11 @@ class Rss {
       const category = fitRule.category || this.category;
       const client = fitRule.client ? global.runningClient[fitRule.client] : _client;
       try {
+        let truehash = '';
         this.addCount += 1;
         if (this.pushTorrentFile) {
           const { filepath, hash } = await this._downloadTorrent(torrent.url, torrent.hash);
+          truehash = hash;
           await client.addTorrentByTorrentFile(filepath, hash, false, this.uploadLimit, this.downloadLimit, savePath, category, this.autoTMM, this.paused);
         } else {
           if (this.useCustomRegex) {
@@ -368,6 +370,10 @@ class Rss {
         }
         await util.runRecord('INSERT INTO torrents (hash, name, size, rss_id, link, category, record_time, add_time, record_type, record_note) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
           [torrent.hash, torrent.name, torrent.size, this.id, torrent.link, category, moment().unix(), moment().unix(), 1, '添加种子']);
+        if (truehash && torrent.hash !== truehash) {
+          await util.runRecord('INSERT INTO torrents (hash, name, size, rss_id, link, category, record_time, add_time, record_type, record_note) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [truehash, torrent.name, torrent.size, this.id, torrent.link, category, moment().unix(), moment().unix(), 1, '添加种子']);
+        }
       } catch (error) {
         logger.error(this.alias, '下载器', client.alias, '添加种子失败:', error.message);
         await util.runRecord('INSERT INTO torrents (hash, name, size, rss_id, link, record_time, record_type, record_note) values (?, ?, ?, ?, ?, ?, ?, ?)',

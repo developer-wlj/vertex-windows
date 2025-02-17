@@ -279,6 +279,7 @@ module.exports = function (app, express, router) {
   router.get('/setting/import', ctrl.Setting.import);
   router.get('/setting/getProxy', ctrl.Setting.getProxy);
   router.post('/setting/saveProxy', ctrl.Setting.saveProxy);
+  router.post('/setting/clearHistory', ctrl.Setting.clearHistory);
 
   router.all('/openapi/:apiKey/plex', ctrl.Webhook.plex);
   router.all('/openapi/:apiKey/emby', ctrl.Webhook.emby);
