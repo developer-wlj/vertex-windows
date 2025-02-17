@@ -11,6 +11,7 @@ on:
 jobs:
   build_windows:
     runs-on: windows-latest
+    permissions: write-all
     outputs:
       output1: ${{ steps.get_version.outputs.KEY }}
     steps:
@@ -83,38 +84,12 @@ jobs:
         echo "${{ steps.get_version.outputs.KEY }}"
         iscc "/DMyAppVersion=${{ steps.get_version.outputs.KEY }}" build.iss
 
-    - name: Upload windows file
-      uses: actions/upload-artifact@v3
+    - name: Create release and upload asset
+      uses: softprops/action-gh-release@v2
       with:
-        name: windows
-        path: .\Inno-Setup-Vertex\exe\build\*.exe
-
-  Create-release:
-    permissions: write-all
-    runs-on: ubuntu-latest
-    needs: [ build_windows ]
-    steps:
-      - name: Download exe
-        uses: actions/download-artifact@v3
-
-      - name: Create release
-        id: create_release
-        uses: actions/create-release@latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OUTPUT1: ${{needs.build_windows.outputs.output1}}
-        with:
-          tag_name: ${{needs.build_windows.outputs.output1}}
-          release_name: ${{needs.build_windows.outputs.output1}}
-          body: ${{ github.event.commits[0].message }}
-          draft: false
-          prerelease: false
-
-      - name: Upload release asset
-        uses: dwenegar/upload-release-assets@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          release_id: ${{ steps.create_release.outputs.id }}
-          assets_path: |
-            ./windows/
+        name: ${{ steps.get_version.outputs.KEY }}
+        tag_name: ${{ steps.get_version.outputs.KEY }}
+        body: ${{ github.event.commits[0].message }}
+        draft: false
+        make_latest: true
+        files: ./Inno-Setup-Vertex/exe/build/*.exe
